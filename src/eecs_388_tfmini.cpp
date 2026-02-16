@@ -7,6 +7,12 @@
 
 #include "eecs_388_lib.h"
 
+#define RED() gpio_write(GPIO_13, ON); \
+              gpio_write(GPIO_12, OFF)
+
+#define GREEN() gpio_write(GPIO_13, OFF); \
+                gpio_write(GPIO_12, ON)
+
 /******************************************************************************
  *   Function: setup() - Initializes the Arduino System
  *      Pre condition: 
@@ -16,8 +22,8 @@
  *          Input/Output (IO) pins are configured
  *******************************************************************************/
 void setup() {
-    gpio_mode(GPIO_13, GPIO_OUTPUT);
-    gpio_mode(GPIO_12, GPIO_OUTPUT);
+    gpio_mode(GPIO_13, GPIO_OUTPUT); // red
+    gpio_mode(GPIO_12, GPIO_OUTPUT); // gree
 
     uart_init();
 }
@@ -60,7 +66,15 @@ void loop()  {
              *  - Helpful guide for printing with variadic function similiar to printf()
              *  - https://en.cppreference.com/w/cpp/io/c/fprintf
              */
-            
+            char dist_l = ser_read();
+            char dist_h = ser_read();
+
+            short dist = (dist_h << 8) | dist_l;
+            if (dist < 75) {
+                RED();
+            } else {
+                GREEN();
+            }
         }
     }
 }
