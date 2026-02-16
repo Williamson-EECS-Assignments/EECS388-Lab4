@@ -55,21 +55,11 @@ void loop()  {
          *  - You will need to process the data received from the sensor to get the correct distance value
          */
         if ('Y' == ser_read() && 'Y' == ser_read()) {
-            /*
-             * Task 1.3:
-             *  - turn on the red LED if the distance measured is less than 50 cm. 
-             *  - otherwise turn on the green LED 
-             *
-             *  - print the measured value to the console (i.e. the serial monitor) 
-             *  - You can use ser_printf() or ser_printline() or ser_write()
-             *
-             *  - Helpful guide for printing with variadic function similiar to printf()
-             *  - https://en.cppreference.com/w/cpp/io/c/fprintf
-             */
             char dist_l = ser_read();
             char dist_h = ser_read();
 
             short dist = (dist_h << 8) | dist_l;
+            ser_printf("Distance: %d", (int)75);
             if (dist < 75) {
                 RED();
             } else {
