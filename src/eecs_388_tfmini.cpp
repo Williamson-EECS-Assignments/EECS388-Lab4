@@ -7,11 +7,9 @@
 
 #include "eecs_388_lib.h"
 
-#define RED() gpio_write(GPIO_13, ON); \
-              gpio_write(GPIO_12, OFF)
-
-#define GREEN() gpio_write(GPIO_13, OFF); \
-                gpio_write(GPIO_12, ON)
+#define RGB(_r, _g, _b) gpio_write(GPIO_13, _r); \
+                        gpio_write(GPIO_12, _g); \
+                        gpio_write(GPIO_11, _b)
 
 /******************************************************************************
  *   Function: setup() - Initializes the Arduino System
@@ -23,7 +21,8 @@
  *******************************************************************************/
 void setup() {
     gpio_mode(GPIO_13, GPIO_OUTPUT); // red
-    gpio_mode(GPIO_12, GPIO_OUTPUT); // gree
+    gpio_mode(GPIO_12, GPIO_OUTPUT); // green
+    gpio_mode(GPIO_11, GPIO_OUTPUT); // blue
 
     uart_init();
 }
@@ -39,8 +38,7 @@ void setup() {
 void loop()  {
     uint16_t dist = 0;              /* LIDAR distance data is 16 bits. */
 
-    ser_printline("Setup completed.");
-    ser_write( '\n' );
+    ser_printf("Setup completed.\n");
 
     while( 1 ) {
         /*
@@ -57,23 +55,24 @@ void loop()  {
         if ('Y' == ser_read() && 'Y' == ser_read()) {
             char dist_l = ser_read();
             char dist_h = ser_read();
-
-            short dist = (dist_h << 8) | dist_l;
-            ser_printf("Distance: %d", (int)75);
-            if (dist < 75) {
-                RED();
-            } else {
-                GREEN();
-            }
+            dist = (dist_h << 8) | dist_l;
 
             // Task 1.4
             // check the checksum
             char calculated_checksum = ('Y' + 'Y' + dist_l + dist_h);
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 4; i++)
                 calculated_checksum += ser_read();
 
-            if (calculated_checksum == ser_read()) {
-                ser_printline("Checksum failed!");
+            if (calculated_checksum != ser_read()) {
+                RGB(ON, ON, ON); // WHITE
+                return;
+            }
+
+            ser_printf("Distance: %d", (int)dist);
+            if (dist < 75) {
+                RGB(ON, OFF, OFF); // red
+            } else {
+                RGB(OFF, ON, OFF); // green
             }
         }
     }
