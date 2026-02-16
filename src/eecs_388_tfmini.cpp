@@ -65,6 +65,16 @@ void loop()  {
             } else {
                 GREEN();
             }
+
+            // Task 1.4
+            // check the checksum
+            char calculated_checksum = ('Y' + 'Y' + dist_l + dist_h);
+            for (int i = 0; i < 8; i++)
+                calculated_checksum += ser_read();
+
+            if (calculated_checksum == ser_read()) {
+                ser_printline("Checksum failed!");
+            }
         }
     }
 }
